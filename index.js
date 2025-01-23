@@ -63,7 +63,34 @@ app.post('/financial-reports/transactions', async (req, res) => {
 
 app.get('/financial-reports/transactions', async (req, res) => {
     try {
-        const transactions = await Transaction.find().select('-_id -__v');
+        const { cliente_id, categoría, tipo, estado, fechaInicio, fechaFin } = req.query;
+        const filters = {};
+
+        if (cliente_id) {
+            filters.cliente_id = cliente_id;
+        }
+
+        if (estado) {
+            filters.estado = estado;
+        }
+
+        if (categoría) {
+            filters.categoría = categoría;
+        }
+
+        if (tipo) {
+            filters.tipo = tipo;
+        }
+
+        if (fechaInicio && fechaFin) {
+            filters.fecha = {
+                $gte: new Date(fechaInicio),
+                $lte: new Date(fechaFin),
+            };
+        }
+
+        const transactions = await Transaction.find(filters).select('-_id -__v');
+
         res.json(transactions);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -71,10 +98,18 @@ app.get('/financial-reports/transactions', async (req, res) => {
 });
 
 
-app.put('/transactions/:id', async (req, res) => {
+app.put('/financial-reports/transactions/:id', async (req, res) => {
     try {
-        const transaction = await Transaction.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!transaction) return res.status(404).json({ error: 'Transaction not found' });
+        const transaction = await Transaction.findOneAndUpdate(
+            { transaccion_id: req.params.id }, 
+            req.body,                          
+            { new: true }                      
+        );
+
+        if (!transaction) {
+            return res.status(404).json({ error: 'Transaction not found' });
+        }
+
         res.json(transaction);
     } catch (err) {
         res.status(400).json({ error: err.message });
@@ -83,7 +118,7 @@ app.put('/transactions/:id', async (req, res) => {
 
 
 app.delete('/financial-reports/:id', async (req, res) => {
-    const { id } = req.params; 
+    const { id } = req.params;
 
     try {
         const report = await Transaction.findOne({ transaccion_id: id });
