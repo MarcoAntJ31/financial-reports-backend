@@ -35,14 +35,13 @@ Inicia el servidor:
 
 Usa el siguiente comando para iniciar el servidor:
 
-npm start
+npm run dev
 El servidor se ejecutará en http://localhost:4000 por defecto.
 
 Modo desarrollo:
 
 Si prefieres trabajar en un entorno de desarrollo con recarga automática, usa:
 
-npm run dev
 Endpoints de la API
 Transacciones
 Crear una nueva transacción
