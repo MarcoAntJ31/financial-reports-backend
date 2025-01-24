@@ -12,7 +12,7 @@ Clona el repositorio:
 
 Abre tu terminal y ejecuta:
 
-git clone https://github.com/usuario/financial-reports-api.git
+git clone https://github.com/MarcoAntJ31/financial-reports-backend.git
 cd financial-reports-api
 Instala las dependencias:
 
