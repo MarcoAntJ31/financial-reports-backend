@@ -1,0 +1,61 @@
+
+use financialDB;
+
+db.transactions.insertMany([
+    {
+        transaccion_id: "1",
+        cliente_id: "C005",
+        cantidad: 8000.5,
+        categoría: "Alimentación",
+        fecha: new Date("2025-01-21T10:30:00.000+00:00"),
+        tipo: "income",
+        estado: "desactivada"
+    },
+    {
+        transaccion_id: "2",
+        cliente_id: "C006",
+        cantidad: 8001.5,
+        categoría: "Transporte",
+        fecha: new Date("2025-01-21T10:30:00.000+00:00"),
+        tipo: "expense",
+        estado: "desactivada"
+    },
+    {
+        transaccion_id: "3",
+        cliente_id: "10",
+        cantidad: 20000,
+        categoría: "Alimentación",
+        fecha: new Date("2025-01-03T06:00:00.000+00:00"),
+        tipo: "income",
+        estado: "desactivada"
+    },
+    {
+        transaccion_id: "4",
+        cliente_id: "13",
+        cantidad: 200,
+        categoría: "Transporte",
+        fecha: new Date("2025-01-17T06:00:00.000+00:00"),
+        tipo: "expense",
+        estado: "activada"
+    },
+    {
+        transaccion_id: "6",
+        cliente_id: "35",
+        cantidad: 500,
+        categoría: "Electricidad",
+        fecha: new Date("2025-01-09T06:00:00.000+00:00"),
+        tipo: "income",
+        estado: "activada"
+    },
+    {
+        transaccion_id: "7",
+        cliente_id: "89",
+        cantidad: 1998,
+        categoría: "Viajes",
+        fecha: new Date("2025-01-17T06:00:00.000+00:00"),
+        tipo: "expense",
+        estado: "activada"
+    }
+]);
+
+db.transactions.find().pretty();

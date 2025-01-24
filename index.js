@@ -136,39 +136,52 @@ app.delete('/financial-reports/:id', async (req, res) => {
     }
 });
 
+const ExcelJS = require('exceljs');
+
 app.post('/reports', async (req, res) => {
-    const { startDate, endDate, client, category } = req.body;
     try {
-        const query = {
-            ...(startDate && endDate && { date: { $gte: new Date(startDate), $lte: new Date(endDate) } }),
-            ...(client && { client }),
-            ...(category && { category }),
-            isActive: true
-        };
+        const transactions = await Transaction.find();
 
-        const transactions = await Transaction.find(query);
-        res.json({ transactions, message: 'Report generated' });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
+        if (transactions.length === 0) {
+            return res.status(404).json({ message: 'No se encontraron transacciones activas.' });
+        }
 
-app.get('/metrics', async (req, res) => {
-    try {
-        const totalTransactions = await Transaction.countDocuments({ isActive: true });
-        const totalAmount = await Transaction.aggregate([
-            { $match: { isActive: true } },
-            { $group: { _id: null, total: { $sum: "$amount" } } }
-        ]);
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Transacciones');
 
-        res.json({
-            totalTransactions,
-            totalAmount: totalAmount[0]?.total || 0
+        worksheet.columns = [
+            { header: 'ID de Transacción', key: 'transaccion_id', width: 20 },
+            { header: 'Cliente', key: 'cliente_id', width: 20 },
+            { header: 'Categoría', key: 'categoría', width: 20 },
+            { header: 'Tipo', key: 'tipo', width: 15 },
+            { header: 'Cantidad', key: 'cantidad', width: 10 },
+            { header: 'Estado', key: 'estado', width: 15 },
+            { header: 'Fecha', key: 'fecha', width: 20 },
+        ];
+
+        transactions.forEach((transaction) => {
+            worksheet.addRow({
+                transaccion_id: transaction.transaccion_id,
+                cliente_id: transaction.cliente_id,
+                categoría: transaction.categoría,
+                tipo: transaction.tipo,
+                cantidad: transaction.cantidad,
+                estado: transaction.estado,
+                fecha: transaction.fecha.toISOString().slice(0, 10), 
+            });
         });
+
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', 'attachment; filename="report.xlsx"');
+        
+        await workbook.xlsx.write(res);
+        res.end();
+
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
+
 
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
